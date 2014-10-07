@@ -30,13 +30,25 @@ def endsWithOne (string, suffixes):
             return True
     return False
 
+def findServerDir ():
+    dir = os.getcwd()
+    while not os.path.isfile(os.path.join(dir, pidPath)):
+        d = os.path.dirname(dir)
+        if d == dir:
+            break
+        dir = d
+    return dir
+
+def findSocketPath ():
+    return os.path.join(findServerDir(), socketPath)
+
 def sendRequest (request, processOutput=sys.stdout.write):
     "Send a JSON request to the clang-tags daemon."
     #TODO: implement this in python rather than calling `socat`
     request = json.dumps (request)
 
     if os.getenv ("CLANG_TAGS_TEST") is None:
-        cmd = ["socat", "-", "UNIX-CONNECT:%s" % socketPath]
+        cmd = ["socat", "-", "UNIX-CONNECT:%s" % findSocketPath()]
     else:
         cmd = ["clang-tags-server", "--stdin"]
 
