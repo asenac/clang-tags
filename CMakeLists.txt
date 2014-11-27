@@ -95,6 +95,7 @@ add_executable (clang-tags-server
   index.cxx
   findDefinition.cxx
   grep.cxx
+  getUsr.cxx
   complete.cxx)
 target_link_libraries (clang-tags-server ${LIBS})
 

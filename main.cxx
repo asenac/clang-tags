@@ -162,6 +162,39 @@ private:
 };
 
 
+class GetUsrCommand : public Request::CommandParser {
+public:
+  GetUsrCommand (const std::string & name, Application & application)
+    : Request::CommandParser (name, "Find the definition of a symbol"),
+      application_ (application)
+  {
+    prompt_ = "usr> ";
+    defaults ();
+
+    using Request::key;
+    add (key ("file", args_.fileName)
+         ->metavar ("FILENAME")
+         ->description ("Source file name"));
+    add (key ("offset", args_.offset)
+         ->metavar ("OFFSET")
+         ->description ("Offset in bytes"));
+  }
+
+  void defaults () {
+    args_.fileName = "";
+    args_.offset = 0;
+  }
+
+  void run (std::ostream & cout) {
+    application_.getUsr(args_, cout);
+  }
+
+private:
+  Application & application_;
+  Application::GetUsrArgs args_;
+};
+
+
 class CompleteCommand : public Request::CommandParser {
 public:
   CompleteCommand (const std::string & name, Application & application)
@@ -255,6 +288,7 @@ int main (int argc, char **argv) {
     .add (new UpdateCommand ("update", app))
     .add (new FindCommand ("find", app))
     .add (new GrepCommand ("grep", app))
+    .add (new GetUsrCommand ("get-usr", app))
     .add (new CompleteCommand ("complete", app))
     .add (new ExitCommand ("exit"))
     .prompt ("clang-dde> ");

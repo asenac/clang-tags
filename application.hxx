@@ -54,6 +54,13 @@ public:
   void grep (const GrepArgs & args, std::ostream & cout);
 
 
+  struct GetUsrArgs {
+    std::string fileName;
+    int         offset;
+  };
+  void getUsr (const GetUsrArgs & args, std::ostream & cout);
+
+
   struct CompleteArgs {
     std::string fileName;
     int         line;

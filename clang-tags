@@ -291,6 +291,25 @@ def findDefinition (args):
     return sendRequest (request, processOutput)
 
 
+def getUsr (args):
+    """Get USR."""
+    fileName = os.path.realpath (args.fileName)
+
+    request = {"command":   "get-usr",
+               "file":      fileName,
+               "offset":    args.offset}
+
+    def processOutput (line):
+        try:
+            ref = json.loads (line)
+
+            sys.stdout.write ("%(usr)s\n" % ref)
+        except:
+            sys.stdout.write (line)
+
+    return sendRequest (request, processOutput)
+
+
 def grep (args):
     """Find all references to a symbol."""
 
@@ -515,6 +534,22 @@ def main_argparse ():
         metavar = "USR",
         help = "USR for the definition")
     s.set_defaults (fun = grep)
+
+
+    s = subparsers.add_parser (
+        "get-usr",
+        help = "find the definition of an identifier in a source file",
+        description = "Find the definition location of an identifier in a"
+        " source file.")
+    s.add_argument (
+        "fileName",
+        metavar = "FILE_NAME",
+        help = "source file name")
+    s.add_argument (
+        "offset",
+        metavar = "OFFSET",
+        help = "offset in bytes")
+    s.set_defaults (fun = getUsr)
 
 
     s = subparsers.add_parser (

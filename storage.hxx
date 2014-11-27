@@ -360,6 +360,24 @@ public:
     return ret;
   }
 
+  std::string getUsr(const std::string & fileName, int offset) {
+    int fileId = fileId_ (fileName);
+    Sqlite::Statement stmt =
+      db_.prepare ("SELECT ref.usr "
+                   "FROM tags AS ref "
+                   "WHERE ref.fileId = ?  "
+                   "  AND ? BETWEEN ref.offset1 AND ref.offset2 "
+                   "ORDER BY (ref.offset2 - ref.offset1)")
+      .bind (fileId)
+      .bind (offset);
+
+    std::string usr;
+    if (stmt.step() == SQLITE_ROW) {
+      stmt >> usr;
+    }
+    return usr;
+  }
+
   void setOption (const std::string & name, const std::string & value) {
     db_.prepare ("DELETE FROM options "
                  "WHERE name = ?")
