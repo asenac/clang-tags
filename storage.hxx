@@ -39,8 +39,11 @@ public:
                  "  line2    INTEGER,"
                  "  col2     INTEGER,"
                  "  offset2  INTEGER,"
-                 "  isDecl   BOOLEAN"
+                 "  isDecl   BOOLEAN,"
+                 "  PRIMARY KEY(fileId, offset2, offset1, usr)"
                  ")");
+    db_.execute ("CREATE INDEX IF NOT EXISTS tags_usr_idx "
+                 "ON tags(usr, isDecl);");
     db_.execute ("CREATE TABLE IF NOT EXISTS options ( "
                  "  name   TEXT, "
                  "  value  TEXT "
@@ -226,21 +229,12 @@ public:
       return;
     }
 
-    Sqlite::Statement stmt =
-      db_.prepare ("SELECT * FROM tags "
-                   "WHERE fileId=? "
-                   "  AND usr=?"
-                   "  AND offset1=?"
-                   "  AND offset2=?")
-      .bind (fileId).bind (usr).bind (offset1).bind (offset2);
-    if (stmt.step() == SQLITE_DONE) { // no matching row
-      db_.prepare ("INSERT INTO tags VALUES (?,?,?,?,?,?,?,?,?,?,?)")
-        .bind(fileId) .bind(usr)  .bind(kind)    .bind(spelling)
-        .bind(line1)  .bind(col1) .bind(offset1)
-        .bind(line2)  .bind(col2) .bind(offset2)
-        .bind(isDeclaration)
-        .step();
-    }
+    db_.prepare ("INSERT OR IGNORE INTO tags VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+      .bind(fileId) .bind(usr)  .bind(kind)    .bind(spelling)
+      .bind(line1)  .bind(col1) .bind(offset1)
+      .bind(line2)  .bind(col2) .bind(offset2)
+      .bind(isDeclaration)
+      .step();
   }
 
   struct Reference {
